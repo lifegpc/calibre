@@ -3,13 +3,21 @@ RUN apt update && apt install -y \
     autoconf \
     automake \
     build-essential \
+    ca-certificates \
     cmake \
     curl \
     gawk \
+    gperf \
     git \
+    libgcrypt20-dev \
     libgdbm-dev \
     libgdbm-compat-dev \
+    libgpg-error-dev \
+    libjxr-dev \
+    libssl-dev \
     libtool \
+    libudev-dev \
+    openssl \
     pkg-config \
     nasm \
     sudo \
@@ -81,13 +89,13 @@ RUN FILENAME=$(csjg -f /root/sources.json -n hyphen -F) && \
     ./configure --prefix=/usr && make -j $(nproc) && make install && \
     cd /root && rm -rf $TMP
 # openssl
-RUN FILENAME=$(csjg -f /root/sources.json -n openssl -F) && \
-    URL=$(csjg -f /root/sources.json -n openssl -u0) && \
-    TMP=$(mktemp -d) && cd $TMP && \
-    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
-    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
-    ./config --prefix=/usr && make -j $(nproc) && make install && \
-    cd /root && rm -rf $TMP && cp -rv /usr/lib64/* /usr/lib
+# RUN FILENAME=$(csjg -f /root/sources.json -n openssl -F) && \
+#     URL=$(csjg -f /root/sources.json -n openssl -u0) && \
+#     TMP=$(mktemp -d) && cd $TMP && \
+#     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+#     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+#     ./config --prefix=/usr && make -j $(nproc) && make install && \
+#     cd /root && rm -rf $TMP && cp -rv /usr/lib64/* /usr/lib
 # ncurses
 RUN FILENAME=$(csjg -f /root/sources.json -n ncurses -F) && \
     URL=$(csjg -f /root/sources.json -n ncurses -u0) && \
@@ -130,6 +138,143 @@ RUN FILENAME=$(csjg -f /root/sources.json -n libstemmer -F) && \
     install -m 644 libstemmer.a /usr/lib && \
     install -m 644 include/libstemmer.h /usr/include && \
     cd /root && rm -rf $TMP
+# libjpeg
+RUN FILENAME=$(csjg -f /root/sources.json -n libjpeg -F) && \
+    URL=$(csjg -f /root/sources.json -n libjpeg -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# libpng
+RUN FILENAME=$(csjg -f /root/sources.json -n libpng -F) && \
+    URL=$(csjg -f /root/sources.json -n libpng -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# libwebp
+RUN FILENAME=$(csjg -f /root/sources.json -n libwebp -F) && \
+    URL=$(csjg -f /root/sources.json -n libwebp -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# freetype
+RUN FILENAME=$(csjg -f /root/sources.json -n freetype -F) && \
+    URL=$(csjg -f /root/sources.json -n freetype -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# graphite
+RUN FILENAME=$(csjg -f /root/sources.json -n graphite -F) && \
+    URL=$(csjg -f /root/sources.json -n graphite -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# fontconfig
+RUN FILENAME=$(csjg -f /root/sources.json -n fontconfig -F) && \
+    URL=$(csjg -f /root/sources.json -n fontconfig -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# iconv
+RUN FILENAME=$(csjg -f /root/sources.json -n iconv -F) && \
+    URL=$(csjg -f /root/sources.json -n iconv -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --enable-static --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# libxml2
+RUN FILENAME=$(csjg -f /root/sources.json -n libxml2 -F) && \
+    URL=$(csjg -f /root/sources.json -n libxml2 -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# libxslt
+RUN FILENAME=$(csjg -f /root/sources.json -n libxslt -F) && \
+    URL=$(csjg -f /root/sources.json -n libxslt -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# chmlib
+RUN FILENAME=$(csjg -f /root/sources.json -n chmlib -F) && \
+    URL=$(csjg -f /root/sources.json -n chmlib -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xjvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# optipng
+RUN FILENAME=$(csjg -f /root/sources.json -n optipng -F) && \
+    URL=$(csjg -f /root/sources.json -n optipng -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# mozjpeg
+RUN FILENAME=$(csjg -f /root/sources.json -n mozjpeg -F) && \
+    URL=$(csjg -f /root/sources.json -n mozjpeg -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# libusb
+RUN FILENAME=$(csjg -f /root/sources.json -n libusb -F) && \
+    URL=$(csjg -f /root/sources.json -n libusb -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xjvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && \
+    make install && cd /root && rm -rf $TMP
+# libmtp
+RUN FILENAME=$(csjg -f /root/sources.json -n libmtp -F) && \
+    URL=$(csjg -f /root/sources.json -n libmtp -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# openjpeg
+RUN FILENAME=$(csjg -f /root/sources.json -n openjpeg -F) && \
+    URL=$(csjg -f /root/sources.json -n openjpeg -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# poppler
+RUN FILENAME=$(csjg -f /root/sources.json -n poppler -F) && \
+    URL=$(csjg -f /root/sources.json -n poppler -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC CXXFLAGS=-fPIC cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_BOOST=OFF ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# podofo
+RUN FILENAME=$(csjg -f /root/sources.json -n podofo -F) && \
+    URL=$(csjg -f /root/sources.json -n podofo -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
 RUN useradd -ms /bin/bash calibre && \
     usermod -aG sudo calibre && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
