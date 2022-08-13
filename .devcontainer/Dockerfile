@@ -24,7 +24,8 @@ RUN FILENAME=$(csjg -f /root/sources.json -n bzip2 -F) && \
     TMP=$(mktemp -d) && cd $TMP && \
     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
-    make -j $(nproc) CFLAGS=-fPIC && make install PREFIX=/usr && cd /root && rm -rf $TMP
+    make -j $(nproc) 'CFLAGS=-fPIC -Wall -Winline -O2 -g -D_FILE_OFFSET_BITS=64' && \
+    make install PREFIX=/usr && cd /root && rm -rf $TMP
 # xz
 RUN FILENAME=$(csjg -f /root/sources.json -n xz -F) && \
     URL=$(csjg -f /root/sources.json -n xz -u0) && \
@@ -86,14 +87,14 @@ RUN FILENAME=$(csjg -f /root/sources.json -n openssl -F) && \
     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
     ./config --prefix=/usr && make -j $(nproc) && make install && \
-    cd /root && rm -rf $TMP && cp -rv /usr/lib64/* /usr/lib && rm -rf /usr/lib64/*
+    cd /root && rm -rf $TMP && cp -rv /usr/lib64/* /usr/lib
 # ncurses
 RUN FILENAME=$(csjg -f /root/sources.json -n ncurses -F) && \
     URL=$(csjg -f /root/sources.json -n ncurses -u0) && \
     TMP=$(mktemp -d) && cd $TMP && \
     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
-    ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
     cd /root && rm -rf $TMP
 # readline
 RUN FILENAME=$(csjg -f /root/sources.json -n readline -F) && \
@@ -104,13 +105,14 @@ RUN FILENAME=$(csjg -f /root/sources.json -n readline -F) && \
     ./configure --prefix=/usr && make -j $(nproc) && make install && \
     cd /root && rm -rf $TMP
 # python
-# RUN FILENAME=$(csjg -f /root/sources.json -n python -F) && \
-#     URL=$(csjg -f /root/sources.json -n python -u0) && \
-#     TMP=$(mktemp -d) && cd $TMP && \
-#     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
-#     curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
-#     ./configure --prefix=/usr --enable-optimizations --enable-ipv6 --with-lto && \
-#     make -j $(nproc) && make install && cd /root && rm -rf $TMP
+RUN FILENAME=$(csjg -f /root/sources.json -n python -F) && \
+    URL=$(csjg -f /root/sources.json -n python -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    ./configure --prefix=/usr --enable-optimizations --enable-ipv6 --with-lto && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP && \
+    ln -s /usr/bin/python3 /usr/bin/python && ln -s /usr/bin/pip3 /usr/bin/pip
 RUN useradd -ms /bin/bash calibre && \
     usermod -aG sudo calibre && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
