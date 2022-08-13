@@ -86,7 +86,7 @@ RUN FILENAME=$(csjg -f /root/sources.json -n openssl -F) && \
     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
     ./config --prefix=/usr && make -j $(nproc) && make install && \
-    cd /root && rm -rf $TMP && mv -v /usr/lib64/* /usr/lib
+    cd /root && rm -rf $TMP && cp -rv /usr/lib64/* /usr/lib && rm -rf /usr/lib64/*
 # ncurses
 RUN FILENAME=$(csjg -f /root/sources.json -n ncurses -F) && \
     URL=$(csjg -f /root/sources.json -n ncurses -u0) && \
