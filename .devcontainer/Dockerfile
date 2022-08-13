@@ -113,6 +113,23 @@ RUN FILENAME=$(csjg -f /root/sources.json -n python -F) && \
     ./configure --prefix=/usr --enable-optimizations --enable-ipv6 --with-lto && \
     make -j $(nproc) && make install && cd /root && rm -rf $TMP && \
     ln -s /usr/bin/python3 /usr/bin/python && ln -s /usr/bin/pip3 /usr/bin/pip
+# icu
+RUN FILENAME=$(csjg -f /root/sources.json -n icu -F) && \
+    URL=$(csjg -f /root/sources.json -n icu -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd icu/source/ && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr --enable-static && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# libstemmer
+RUN FILENAME=$(csjg -f /root/sources.json -n libstemmer -F) && \
+    URL=$(csjg -f /root/sources.json -n libstemmer -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    make -j $(nproc) 'CFLAGS=-fPIC -O2' && \
+    install -m 644 libstemmer.a /usr/lib && \
+    install -m 644 include/libstemmer.h /usr/include && \
+    cd /root && rm -rf $TMP
 RUN useradd -ms /bin/bash calibre && \
     usermod -aG sudo calibre && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
