@@ -275,6 +275,55 @@ RUN FILENAME=$(csjg -f /root/sources.json -n podofo -F) && \
     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
     mkdir build && cd build && CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
     make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# PRCE
+RUN TMP=$(mktemp -d) && cd $TMP && \
+    curl -L "https://sourceforge.net/projects/pcre/files/pcre/8.45/pcre-8.45.tar.bz2/download" -o "pcre-8.45.tar.bz2" && \
+    tar -xjvf "pcre-8.45.tar.bz2" && cd pcre-8.45 && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && \
+    make install && cd /root && rm -rf $TMP
+RUN pip install meson ninja
+# glib
+RUN FILENAME=$(csjg -f /root/sources.json -n glib -F) && \
+    URL=$(csjg -f /root/sources.json -n glib -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && \
+    LDFLAGS='-liconv' meson setup build --buildtype=release --prefix=/usr && cd build && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# dbus
+RUN FILENAME=$(csjg -f /root/sources.json -n dbus -F) && \
+    URL=$(csjg -f /root/sources.json -n dbus -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# dbusglib
+RUN FILENAME=$(csjg -f /root/sources.json -n dbusglib -F) && \
+    URL=$(csjg -f /root/sources.json -n dbusglib -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# hunspell
+RUN FILENAME=$(csjg -f /root/sources.json -n hunspell -F) && \
+    URL=$(csjg -f /root/sources.json -n hunspell -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# node.js
+# RUN FILENAME=$(csjg -f /root/sources.json -n nodejs -F) && \
+#     URL=$(csjg -f /root/sources.json -n nodejs -u0) && \
+#     TMP=$(mktemp -d) && cd $TMP && \
+#     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd node-* && \
+#     python configure.py --prefix=/usr --enable-lto --ninja && make -j $(nproc) && \
+#     make install && cd /root && rm -rf $TMP
+RUN curl -L "https://nodejs.org/dist/v16.16.0/node-v16.16.0-linux-x64.tar.xz" -o node-v16.16.0-linux-x64.tar.xz && \
+    tar -xJvf "node-v16.16.0-linux-x64.tar.xz" && cp -rv node-v16.16.0-linux-x64/* /usr && \
+    rm -rf node-v16.16.0-linux-x64 node-v16.16.0-linux-x64.tar.xz
 RUN useradd -ms /bin/bash calibre && \
     usermod -aG sudo calibre && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
