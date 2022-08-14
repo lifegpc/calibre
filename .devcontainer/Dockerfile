@@ -2,10 +2,12 @@ FROM ubuntu:latest
 RUN apt update && apt install -y \
     autoconf \
     automake \
+    bison \
     build-essential \
     ca-certificates \
     cmake \
     curl \
+    flex \
     gawk \
     gperf \
     git \
@@ -13,12 +15,18 @@ RUN apt update && apt install -y \
     libgdbm-dev \
     libgdbm-compat-dev \
     libgl1-mesa-dev \
+    libgles2-mesa-dev \
     libglu1-mesa-dev \
     libgpg-error-dev \
     libjxr-dev \
+    libnss3-dev \
     libssl-dev \
     libtool \
     libudev-dev \
+    libwayland-dev \
+    libwayland-egl1-mesa \
+    libwayland-server0 \
+    libxkbcommon-dev \
     openssl \
     pkg-config \
     nasm \
@@ -367,6 +375,63 @@ RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtdeclarative-everywhere-src-6.3.1.t
     tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
     CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
     ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-imageformats
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtimageformats-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtimageformats-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-websockets
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtwebsockets-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtwebsockets-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-webchannel
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtwebchannel-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtwebchannel-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-positioning
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtpositioning-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtpositioning-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-wayland
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtwayland-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtwayland-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-sensors
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtsensors-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtsensors-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+RUN pip install setuptools==57.4.0 html5lib==1.1
+# libcups2
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=cups-2.4.2.tar.gz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://github.com/OpenPrinting/cups/releases/download/v2.4.2/cups-2.4.2-source.tar.gz" -o $FILENAME && \
+    tar -xzvf $FILENAME && cd $DIR && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP
+# qt-webengine
+# RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtwebengine-everywhere-src-6.3.1.tar.xz && \
+#     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+#     curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtwebengine-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+#     tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+#     CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+#     ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
 RUN useradd -ms /bin/bash calibre && \
     usermod -aG sudo calibre && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
