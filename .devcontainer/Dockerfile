@@ -12,6 +12,8 @@ RUN apt update && apt install -y \
     libgcrypt20-dev \
     libgdbm-dev \
     libgdbm-compat-dev \
+    libgl1-mesa-dev \
+    libglu1-mesa-dev \
     libgpg-error-dev \
     libjxr-dev \
     libssl-dev \
@@ -324,6 +326,47 @@ RUN FILENAME=$(csjg -f /root/sources.json -n hunspell -F) && \
 RUN curl -L "https://nodejs.org/dist/v16.16.0/node-v16.16.0-linux-x64.tar.xz" -o node-v16.16.0-linux-x64.tar.xz && \
     tar -xJvf "node-v16.16.0-linux-x64.tar.xz" && cp -rv node-v16.16.0-linux-x64/* /usr && \
     rm -rf node-v16.16.0-linux-x64 node-v16.16.0-linux-x64.tar.xz
+# double-conversion
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=double-conversion-3.2.1.tar.gz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://github.com/google/double-conversion/archive/refs/tags/v3.2.1.tar.gz" -o $FILENAME && \
+    tar -xzvf $FILENAME && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# md4c
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=md4c-release-0.4.8.tar.gz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://github.com/mity/md4c/archive/refs/tags/release-0.4.8.tar.gz" -o $FILENAME && \
+    tar -xzvf $FILENAME && cd $DIR && \
+    mkdir build && cd build && CFLAGS=-fPIC cmake -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    make -j $(nproc) && make install && cd /root && rm -rf $TMP
+# qt-base
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtbase-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtbase-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && ./configure -prefix /usr && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-svg
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtsvg-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtsvg-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-shadertools
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtshadertools-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtshadertools-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+# qt-declarative
+RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtdeclarative-everywhere-src-6.3.1.tar.xz && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtdeclarative-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
+    tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
 RUN useradd -ms /bin/bash calibre && \
     usermod -aG sudo calibre && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
