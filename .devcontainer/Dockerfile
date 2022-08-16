@@ -9,8 +9,10 @@ RUN apt update && apt install -y \
     curl \
     flex \
     gawk \
+    gettext \
     gperf \
     git \
+    libdotconf-dev \
     libgcrypt20-dev \
     libgdbm-dev \
     libgdbm-compat-dev \
@@ -20,6 +22,7 @@ RUN apt update && apt install -y \
     libgpg-error-dev \
     libjxr-dev \
     libnss3-dev \
+    libsndfile1-dev \
     libssl-dev \
     libtool \
     libudev-dev \
@@ -31,6 +34,7 @@ RUN apt update && apt install -y \
     pkg-config \
     nasm \
     sudo \
+    unzip \
     uuid-dev \
     zlib1g-dev
 RUN cd /root && curl -L "https://github.com/lifegpc/calibre/raw/master/bypy/sources.json" -o sources.json && \
@@ -57,7 +61,9 @@ RUN FILENAME=$(csjg -f /root/sources.json -n unrar -F) && \
     URL=$(csjg -f /root/sources.json -n unrar -u0) && \
     TMP=$(mktemp -d) && cd $TMP && \
     curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd unrar && \
-    make -j $(nproc) && make install PREFIX=/usr && cd /root && rm -rf $TMP
+    make -j $(nproc) && make install PREFIX=/usr && make clean && make lib -j $(nproc) && \
+    make install-lib PREFIX=/usr && mkdir /usr/include/unrar && install -m 644 dll.hpp /usr/include/unrar && \
+    cd /root && rm -rf $TMP
 # brotli
 RUN FILENAME=$(csjg -f /root/sources.json -n brotli -F) && \
     URL=$(csjg -f /root/sources.json -n brotli -u0) && \
@@ -429,9 +435,41 @@ RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=cups-2.4.2.tar.gz && \
 # RUN TMP=$(mktemp -d) && cd $TMP && FILENAME=qtwebengine-everywhere-src-6.3.1.tar.xz && \
 #     DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
 #     curl -L "https://download.qt.io/archive/qt/6.3/6.3.1/submodules/qtwebengine-everywhere-src-6.3.1.tar.xz" -o $FILENAME && \
-#     tar -xJvf $FILENAME && cd $DIR && mkdir build && cd build && \
+#     tar -xJf $FILENAME && rm $FILENAME && cd $DIR && mkdir build && cd build && \
 #     CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
 #     ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+RUN pip install six==1.16.0 unrardll==0.1.5 lxml==4.9.1 pychm==0.8.6 html5-parser==0.4.10 css-parser==1.0.7 \
+    python-dateutil==2.8.2 jeepney==0.7.1 dnspython==2.1.0 mechanize==0.4.7 feedparser==6.0.8 sgmllib3k==1.0.0 \
+    markdown==3.3.6 html2text==2020.1.16 soupsieve==2.3.1 beautifulsoup4==4.10.0 regex==2021.11.10 chardet==4.0.0
+# uchardet
+RUN FILENAME=$(csjg -f /root/sources.json -n uchardet -F) && \
+    URL=$(csjg -f /root/sources.json -n uchardet -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xJvf "$FILENAME" && cd $DIR && mkdir build && cd build && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr ../ && \
+    ninja -j $(nproc) && ninja install && cd /root && rm -rf $TMP
+RUN pip install msgpack==1.0.3 pygments==2.10.0 pycryptodome==3.11.0
+# apsw
+RUN FILENAME=$(csjg -f /root/sources.json -n apsw -F) && \
+    URL=$(csjg -f /root/sources.json -n apsw -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && \
+    curl -L "$URL" -o "$FILENAME" && unzip "$FILENAME" && cd $DIR && \
+    python setup.py install && cd /root && rm -rf $TMP
+RUN pip install webencodings==0.5.1 pillow==8.4.0 netifaces==0.11.0 psutil==5.8.0 ifaddr==0.1.7 \
+    texttable==1.6.4 multivolumefile==0.2.3 brotli==1.0.9 pyzstd==0.15.0 \
+    pyppmd==0.17.3 py7zr==0.16.3 zeroconf==0.37.0 toml==0.10.2 pyparsing==3.0.6 ply==3.11 \
+    packaging==21.3 sip==6.6.2 PyQt-builder==1.13.0 PyQt6-sip==13.4.0 PyQt6==6.3.1 \
+    PyQt6-WebEngine==6.3.1
+# speech-dispatcher-client
+RUN FILENAME=$(csjg -f /root/sources.json -n speech-dispatcher-client -F) && \
+    URL=$(csjg -f /root/sources.json -n speech-dispatcher-client -u0) && \
+    TMP=$(mktemp -d) && cd $TMP && \
+    DIR=${FILENAME%.*} && DIR=${DIR%.*} && \
+    curl -L "$URL" -o "$FILENAME" && tar -xzvf "$FILENAME" && cd $DIR && \
+    CFLAGS=-fPIC CXXFLAGS=-fPIC ./configure --prefix=/usr && make -j $(nproc) && make install && \
+    cd /root && rm -rf $TMP || make install && cd /root && rm -rf $TMP
 RUN useradd -ms /bin/bash calibre && \
     usermod -aG sudo calibre && \
     echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
