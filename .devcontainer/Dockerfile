@@ -33,7 +33,7 @@ RUN apt update && apt install -y \
     libxcomposite1 \
     libxdamage1 \
     libxkbcommon-dev \
-    libxkbfile1
+    libxkbfile1 \
     libxrandr2 \
     libxrender1 \
     libxtst6 \
