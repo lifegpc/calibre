@@ -12,6 +12,7 @@ RUN apt update && apt install -y \
     gettext \
     gperf \
     git \
+    libasound2 \
     libdotconf-dev \
     libgcrypt20-dev \
     libgdbm-dev \
@@ -29,7 +30,13 @@ RUN apt update && apt install -y \
     libwayland-dev \
     libwayland-egl1-mesa \
     libwayland-server0 \
+    libxcomposite1 \
+    libxdamage1 \
     libxkbcommon-dev \
+    libxkbfile1
+    libxrandr2 \
+    libxrender1 \
+    libxtst6 \
     openssl \
     pkg-config \
     nasm \
